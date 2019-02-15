@@ -91,19 +91,7 @@ function listenOnTabs() {
         checkContextMenu(checkTabId);
     });
 }
-function loadSecret() {
-    const secretFile = chrome.runtime.getURL('secret.json');
-    fetch(secretFile)
-        .then(res => res.json())
-        .then(secret => {
-            // store the email/password from the secret file
-            // Could do just chrome.storage.sync.set(secret);
-            // but thus is visible that the storage contains 'email' and 'password' keys
-            chrome.storage.sync.set({email: secret.email, password: secret.password});
-        });
-}
 
-loadSecret();
 listenOnTabs();
 
 chrome.runtime.onInstalled.addListener(() => {
