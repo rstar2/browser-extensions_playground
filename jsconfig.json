@@ -1,0 +1,14 @@
+{
+    "typeAcquisition": {
+        "include": [
+            "chrome"
+        ]
+    },
+    "compilerOptions": {
+        "module": "none",
+        "lib": [
+            "es6",
+            "dom"
+        ]
+    }
+}
