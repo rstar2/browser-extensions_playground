@@ -5,13 +5,6 @@ const SERVICE_URL = 'https://g9wvw8v13h.execute-api.eu-central-1.amazonaws.com/d
 
 const YOUTUBE_URL = /https:\/\/www.youtube.com\/watch\?v=(.+)/;
 
-chrome.runtime.onInstalled.addListener(() => {
-    console.log('installed');
-
-    createContextMenu();
-    listenOnTabs();
-});
-
 function createContextMenu() {
     // Create the Context Menu items
     chrome.contextMenus.create({
@@ -45,22 +38,30 @@ function createContextMenu() {
 function checkContextMenu(tabId) {
     if (-1 === tabId) return; // still no active Tab
 
-    console.log('check context menu');
+    console.log('check authorized');
+    chrome.storage.sync.get('auth', ({ auth }) => {
+        if (!auth) {
+            console.log('NOT authorized');
+            updateContextMenu(false);
+            return;
+        }
 
-    // Note: chrome.tabs.getCurrent() will always return 'tab' as undefined when called from a background script,
-    // so use chrome.tabs.get(abId)
-    // chrome.tabs.getCurrent(tab => {
-    chrome.tabs.get(tabId, tab => {
-        if (!tab) return;
+        console.log('check context menu');
 
-        // inspect the tabs URL
-        const { url, active } = tab;
+        // Note: chrome.tabs.getCurrent() will always return 'tab' as undefined when called from a background script,
+        // so use chrome.tabs.get(abId)
+        // chrome.tabs.getCurrent(tab => {
+        chrome.tabs.get(tabId, tab => {
+            if (!tab) return;
 
-        // if the the current tab is still active and has valid URL
-        const enabled = active && url && url.match(YOUTUBE_URL);
-        updateContextMenu(!!enabled);
-    })
+            // inspect the tabs URL
+            const { url, active } = tab;
 
+            // if the the current tab is still active and has valid URL
+            const enabled = active && url && url.match(YOUTUBE_URL);
+            updateContextMenu(!!enabled);
+        });
+    });
 }
 function updateContextMenu(enabled) {
     console.log('update context menu', enabled);
@@ -90,6 +91,26 @@ function listenOnTabs() {
         checkContextMenu(checkTabId);
     });
 }
+function loadSecret() {
+    const secretFile = chrome.runtime.getURL('secret.json');
+    fetch(secretFile)
+        .then(res => res.json())
+        .then(secret => {
+            // store the email/password from the secret file
+            // Could do just chrome.storage.sync.set(secret);
+            // but thus is visible that the storage contains 'email' and 'password' keys
+            chrome.storage.sync.set({email: secret.email, password: secret.password});
+        });
+}
+
+loadSecret();
+listenOnTabs();
+
+chrome.runtime.onInstalled.addListener(() => {
+    console.log('installed');
+
+    createContextMenu();
+});
 
 console.log('background script activated');
 
