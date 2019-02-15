@@ -1,5 +1,3 @@
-'use strict';
-
 chrome.browserAction.onClicked.addListener(tab => {
     console.log('Extension clicked');
 

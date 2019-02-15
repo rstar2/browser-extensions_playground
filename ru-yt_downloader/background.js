@@ -1,14 +1,12 @@
-const extensionName = 'RU-YT-Download';
-
-const CONTEXT_ITEM_MP3 = 'ru-yt-download-mp3';
-const CONTEXT_ITEM_MP4 = 'ru-yt-download-mp4';
+const CONTEXT_ITEM_MP3 = 'mp3';
+const CONTEXT_ITEM_MP4 = 'mp4';
 
 const SERVICE_URL = 'https://g9wvw8v13h.execute-api.eu-central-1.amazonaws.com/dev/view/download';
 
 const YOUTUBE_URL = /https:\/\/www.youtube.com\/watch\?v=(.+)/;
 
 chrome.runtime.onInstalled.addListener(() => {
-    console.log(`${extensionName} installed`);
+    console.log('installed');
 
     createContextMenu();
     listenOnTabs();
@@ -29,7 +27,7 @@ function createContextMenu() {
     chrome.contextMenus.onClicked.addListener(info => {
         const { menuItemId, pageUrl } = info;
 
-        console.log(`${extensionName} menu clicked`, menuItemId);
+        console.log('menu clicked', menuItemId);
 
         const videoId = pageUrl.match(/v=([^&]*)/)[1];
         let videoDownloadUrl = `${SERVICE_URL}/${encodeURIComponent(videoId)}`;
@@ -38,7 +36,7 @@ function createContextMenu() {
             videoDownloadUrl += '?mp3=true';
         }
 
-        console.log(`${extensionName} opening`, videoDownloadUrl);
+        console.log('opening', videoDownloadUrl);
         // open a new tab for downloading
         chrome.tabs.create({ url: videoDownloadUrl });
     });
@@ -47,7 +45,7 @@ function createContextMenu() {
 function checkContextMenu(tabId) {
     if (-1 === tabId) return; // still no active Tab
 
-    console.log(`${extensionName} check context menu`);
+    console.log('check context menu');
 
     // Note: chrome.tabs.getCurrent() will always return 'tab' as undefined when called from a background script,
     // so use chrome.tabs.get(abId)
@@ -65,7 +63,7 @@ function checkContextMenu(tabId) {
 
 }
 function updateContextMenu(enabled) {
-    console.log(`${extensionName} update context menu`, enabled);
+    console.log('update context menu', enabled);
     chrome.contextMenus.update(CONTEXT_ITEM_MP3, { enabled });
     chrome.contextMenus.update(CONTEXT_ITEM_MP4, { enabled });
 
@@ -81,7 +79,7 @@ function listenOnTabs() {
         checkContextMenu(checkTabId);
     });
     chrome.tabs.onUpdated.addListener((tabId, props) => {
-        if (props.status == "complete" && tabId === checkTabId) {
+        if (props.status == 'complete' && tabId === checkTabId) {
             checkContextMenu(checkTabId);
         }
     });
@@ -93,7 +91,7 @@ function listenOnTabs() {
     });
 }
 
-console.log(`${extensionName} background script activated`);
+console.log('background script activated');
 
 
 
