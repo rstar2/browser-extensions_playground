@@ -5,18 +5,7 @@ const SERVICE_URL = 'https://g9wvw8v13h.execute-api.eu-central-1.amazonaws.com/d
 
 const YOUTUBE_URL = /https:\/\/www.youtube.com\/watch\?v=(.+)/;
 
-function createContextMenu() {
-    // Create the Context Menu items
-    chrome.contextMenus.create({
-        'id': CONTEXT_ITEM_MP3,
-        'title': 'Ru Download YouTube video as MP3',
-        'contexts': ['video']
-    });
-    chrome.contextMenus.create({
-        'id': CONTEXT_ITEM_MP4,
-        'title': 'Ru Download YouTube video as MP4',
-        'contexts': ['video']
-    });
+function listenOnContextMenu() {
     chrome.contextMenus.onClicked.addListener(info => {
         const { menuItemId, pageUrl } = info;
 
@@ -67,7 +56,6 @@ function updateContextMenu(enabled) {
     console.log('update context menu', enabled);
     chrome.contextMenus.update(CONTEXT_ITEM_MP3, { enabled });
     chrome.contextMenus.update(CONTEXT_ITEM_MP4, { enabled });
-
 }
 
 function listenOnTabs() {
@@ -93,11 +81,22 @@ function listenOnTabs() {
 }
 
 listenOnTabs();
+listenOnContextMenu();
 
 chrome.runtime.onInstalled.addListener(() => {
     console.log('installed');
 
-    createContextMenu();
+    // Create the Context Menu items - in examples they are created ALWAYS inside 'onInstalled' event 
+    chrome.contextMenus.create({
+        'id': CONTEXT_ITEM_MP3,
+        'title': 'Ru Download YouTube video as MP3',
+        'contexts': ['video']
+    });
+    chrome.contextMenus.create({
+        'id': CONTEXT_ITEM_MP4,
+        'title': 'Ru Download YouTube video as MP4',
+        'contexts': ['video']
+    });
 });
 
 console.log('background script activated');
