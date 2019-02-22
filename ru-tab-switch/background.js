@@ -1,5 +1,9 @@
 const windows = new Map();
 
+function isDefined(obj) {
+    return null !== obj && undefined !== obj;
+}
+
 function tabSwitch() {
     chrome.tabs.query({ currentWindow: true }, tabs => {
         if (tabs.length === 0 || tabs.length === 1) {
@@ -7,7 +11,7 @@ function tabSwitch() {
             return;
         }
 
-        let lastActiveTabId = null;
+        let lastActiveTabId;
         let errorCause;
 
         // if just 2 tabs - switch them
@@ -23,17 +27,19 @@ function tabSwitch() {
             // validate 'windowData' again as all events are async and such window acn already have been closed
             if (windowData) {
                 lastActiveTabId = windowData.lastActiveTabId;
-                // check if there's still such tab
-                if (-1 === tabs.findIndex(tab => tab.id === lastActiveTabId)) {
-                    errorCause = 'Window\'s data is obsolete';
-                }
             } else {
                 errorCause = 'Window\'s data is already cleared';
+            }
+
+            // check if there's still such tab
+            if (isDefined(lastActiveTabId) &&
+                -1 === tabs.findIndex(tab => tab.id === lastActiveTabId)) {
+                errorCause = 'Window\'s data is obsolete';
             }
         }
 
         // Note id 0 is valid ID, so check is for 'null'
-        if (null != lastActiveTabId && !errorCause) { 
+        if (isDefined(lastActiveTabId) && !errorCause) {
             chrome.tabs.update(lastActiveTabId, { active: true, highlighted: true });
         } else {
             errorCause = errorCause || 'No tab to switch to';
