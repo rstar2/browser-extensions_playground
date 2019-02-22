@@ -8,6 +8,7 @@ function tabSwitch() {
         }
 
         let lastActiveTabId = null;
+        let errorCause;
 
         // if just 2 tabs - switch them
         if (tabs.length === 2) {
@@ -24,17 +25,19 @@ function tabSwitch() {
                 lastActiveTabId = windowData.lastActiveTabId;
                 // check if there's still such tab
                 if (-1 === tabs.findIndex(tab => tab.id === lastActiveTabId)) {
-                    console.log('Window\'s data is obsolete');
+                    errorCause = 'Window\'s data is obsolete';
                 }
             } else {
-                console.log('Window\'s data is already cleared');
+                errorCause = 'Window\'s data is already cleared';
             }
         }
 
-        if (null != lastActiveTabId) { // Node id 0 is valid ID
+        // Note id 0 is valid ID, so check is for 'null'
+        if (null != lastActiveTabId && !errorCause) { 
             chrome.tabs.update(lastActiveTabId, { active: true, highlighted: true });
         } else {
-            console.log('No tab to switch to');
+            errorCause = errorCause || 'No tab to switch to';
+            console.log(errorCause);
         }
     });
 }
@@ -71,4 +74,5 @@ function listenOnTabs() {
 
 listenOnWindows();
 listenOnTabs();
+console.log('Started');
 

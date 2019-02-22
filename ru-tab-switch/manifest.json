@@ -1,7 +1,7 @@
 {
     "name": "RU Tab Switch",
     "description": "Add a keyboard shortcut for switching to the latest previously active tab",
-    "version": "1.0",
+    "version": "2.0",
     "manifest_version": 2,
     "permissions": [
         "tabs"
@@ -11,7 +11,7 @@
             "suggested_key": {
                 "default": "Alt+A"
             },
-            "description": "Go previously active tab"
+            "description": "Go to previously active tab"
         }
     },
     "background": {
