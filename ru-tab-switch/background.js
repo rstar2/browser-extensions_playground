@@ -1,7 +1,14 @@
-const windows = new Map();
+let windows = new Map();
 
 function isDefined(obj) {
     return null !== obj && undefined !== obj;
+}
+
+function mapToJson(map) {
+    return JSON.stringify([...map]);
+}
+function jsonToMap(jsonStr) {
+    return new Map(JSON.parse(jsonStr));
 }
 
 function tabSwitch() {
@@ -75,10 +82,23 @@ function listenOnTabs() {
             windowData.lastActiveTabId = windowData.activeTabId;
             windowData.activeTabId = tabId;
         }
+
+        chrome.storage.local.set({'windows': mapToJson(windows)});
     });
 }
 
 listenOnWindows();
 listenOnTabs();
 console.log('Started');
+chrome.storage.local.get(['windows'], data => {
+    const jsonWindows = data['windows'];
+    if (jsonWindows) {
+        console.log('Restored windows data', jsonWindows);
+        try {
+            windows = jsonToMap(jsonWindows);
+        } catch (error) {
+            windows = new Map();
+        }
+    }
+});
 

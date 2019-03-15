@@ -1,10 +1,11 @@
 {
     "name": "RU Tab Switch",
     "description": "Add a keyboard shortcut for switching to the latest previously active tab",
-    "version": "2.1",
+    "version": "2.2",
     "manifest_version": 2,
     "permissions": [
-        "tabs"
+        "tabs",
+        "storage"
     ],
     "commands": {
         "tab-switch": {
