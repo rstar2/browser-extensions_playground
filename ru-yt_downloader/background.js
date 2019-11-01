@@ -3,7 +3,7 @@ const CONTEXT_ITEM_MP4 = 'mp4';
 
 const SERVICE_URL = 'https://g9wvw8v13h.execute-api.eu-central-1.amazonaws.com/dev/view/download';
 
-const YOUTUBE_URL = /https:\/\/www.youtube.com\/watch\?v=(.+)/;
+const ALLOWED_URL = /https:\/\/www.youtube.com\/watch\?v=(.+)/;
 
 function listenOnContextMenu() {
     chrome.contextMenus.onClicked.addListener(info => {
@@ -47,7 +47,7 @@ function checkContextMenu(tabId) {
             const { url, active } = tab;
 
             // if the the current tab is still active and has valid URL
-            const enabled = active && url && url.match(YOUTUBE_URL);
+            const enabled = active && url && url.match(ALLOWED_URL);
             updateContextMenu(!!enabled);
         });
     });
@@ -89,12 +89,12 @@ chrome.runtime.onInstalled.addListener(() => {
     // Create the Context Menu items - in examples they are created ALWAYS inside 'onInstalled' event 
     chrome.contextMenus.create({
         'id': CONTEXT_ITEM_MP3,
-        'title': 'Ru Download YouTube video as MP3',
+        'title': 'MP3',
         'contexts': ['video']
     });
     chrome.contextMenus.create({
         'id': CONTEXT_ITEM_MP4,
-        'title': 'Ru Download YouTube video as MP4',
+        'title': 'MP4',
         'contexts': ['video']
     });
 });
