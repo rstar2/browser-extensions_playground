@@ -1,5 +1,3 @@
-/* globals chrome */
-
 const log = (msg) => {
     console.log('%c %s %s %s', 'color: brown; font-weight: bold; text-decoration : underline;', '--FFS DEBUG--', msg, '--');
 };
@@ -24,6 +22,7 @@ function listenOnContextMenu() {
                     return;
                 }
 
+                // overwrite the whole search-query
                 currentUrl.search = `?secret=${secret}`;
 
                 switch (menuItemId) {
@@ -33,6 +32,7 @@ function listenOnContextMenu() {
                         break;
                     case CONTEXT_ITEM_CACHE_CLEAR:
                         currentUrl.pathname = '/adapter/internal/ajax/cache_delete';
+                        // append a query param
                         currentUrl.searchParams.append('regex_name_cache', '.*');
                         fetch(currentUrl.href, {
                             method: 'POST', // *GET, POST, PUT, DELETE, etc.
@@ -79,13 +79,17 @@ function checkTab(tabId, callback) {
  * @param {Number} tabId
  */
 function checkContextMenu(tabId) {
-    if (-1 === tabId) return; // still no active Tab
+    // still no active Tab
+    if (-1 === tabId) {
+        // first disable the menus
+        updateContextMenu(false);
+        return;
+    }
 
     log('check authorized');
     chrome.storage.sync.get('secret', ({secret}) => {
         if (!secret) {
             log('NOT authorized');
-            updateContextMenu(false);
             return;
         }
 
@@ -135,31 +139,32 @@ listenOnContextMenu();
 chrome.runtime.onInstalled.addListener(() => {
     log('installed');
 
-    // Create the Context Menu items - in examples they are created ALWAYS inside 'onInstalled' event
+    // Create the Context Menu items - normally they are created ALWAYS inside 'onInstalled' event
+    // so that only once
+
     chrome.contextMenus.create({
         'id': CONTEXT_ITEM_CACHE_VIEW,
-        'title': 'FFS Debug - View cache'
+        'title': 'View cache'
     });
     chrome.contextMenus.create({
         'id': CONTEXT_ITEM_CACHE_CLEAR,
-        'title': 'FFS Debug - Clear cache'
+        'title': 'Clear cache'
     });
-
-    const manifestUrl = chrome.extension.getURL('manifest.json');
-    fetch(manifestUrl)
-        .then(response => response.json()) // assuming file contains json
-        .then(json => {
-            listHostsAllowed = json.content_scripts[0].matches.map(urlAllowed => {
-                // single items 'urlAllowed' are ALWAYS of the form  <scheme>://<host><path> as defined by the extension's manifest
-                let hostname = urlAllowed.split('://')[1];
-                hostname = hostname.substring(0, hostname.indexOf('/'));
-                let hostnameRegex = hostname.replace('.', '\.');
-                hostnameRegex = hostnameRegex.replace('*', '.*');
-                return new RegExp(hostnameRegex);
-            });
-            log('loaded allowed scripts');
-        });
 });
+
+fetch(chrome.extension.getURL('manifest.json'))
+    .then(response => response.json()) // assuming file contains json
+    .then(json => {
+        listHostsAllowed = json.content_scripts[0].matches.map(urlAllowed => {
+            // single items 'urlAllowed' are ALWAYS of the form  <scheme>://<host><path> as defined by the extension's manifest
+            let hostname = urlAllowed.split('://')[1];
+            hostname = hostname.substring(0, hostname.indexOf('/'));
+            let hostnameRegex = hostname.replace('.', '\\.');
+            hostnameRegex = hostnameRegex.replace('*', '.*');
+            return new RegExp(hostnameRegex);
+        });
+        log('loaded allowed scripts');
+    });
 
 log('background script activated');
 

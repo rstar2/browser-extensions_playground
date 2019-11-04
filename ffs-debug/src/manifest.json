@@ -14,7 +14,7 @@
             "run_at": "document_start",
             "matches": [
                 "*://*.cnexusdev.com/*",
-                "https://fileflexdev.komero.net/*",
+                "*://*.komero.net/*",
                 "https://share.fileflex.com/*"
             ],
             "js": [
@@ -22,7 +22,9 @@
             ]
         }
     ],
-    "web_accessible_resources":["manifest.json"],
+    "web_accessible_resources": [
+        "manifest.json"
+    ],
     "options_page": "options.html",
     "background": {
         "scripts": [
