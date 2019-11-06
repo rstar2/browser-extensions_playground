@@ -140,6 +140,7 @@ function listenOnTabs() {
 listenOnTabs();
 listenOnContextMenu();
 
+// listen for when the extension is installed (called only once)
 chrome.runtime.onInstalled.addListener(() => {
     log('installed');
 
@@ -154,6 +155,35 @@ chrome.runtime.onInstalled.addListener(() => {
         'id': CONTEXT_ITEM_CACHE_CLEAR,
         'title': 'Clear cache'
     });
+});
+
+// listen for messages from content scripts for instance
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    const pageUrl = sender.tab && sender.tab.url;
+    // log(`Message received from ${pageUrl ? 'a content script:' + pageUrl : 'the extension itself'}`);
+
+    if (pageUrl && request.type === 'FFS_DEBUG_VERIFY') {
+        log('verify code');
+        // check the 'secret' code
+        chrome.storage.sync.get('secret', ({secret}) => {
+            if (!secret) {
+                return sendResponse({success: false});
+            }
+
+            const currentUrl = new URL(pageUrl);
+            currentUrl.pathname = '/fbweb/internal/ajax/verify';
+            currentUrl.search = `?secret=${secret}`;
+            // verify with the server
+            fetch(currentUrl.href)
+                .then(() => true)
+                .catch(() => false)
+                .then(result => ({success : result}))
+                .then(sendResponse);
+        });
+
+        // NOTE - "return true;" in order to indicate that this is ASYNC, e.g. that the sendResponse will be called later async
+        return true;
+    }
 });
 
 fetch(chrome.extension.getURL('manifest.json'))
