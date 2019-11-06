@@ -128,7 +128,11 @@ function listenOnTabs() {
 
     // check initially the current tab
     chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-        checkTabId = tabs[0].id;
+        if (!tabs || !tabs.length) {
+            checkTabId = -1;
+        } else {
+            checkTabId = tabs[0].id;
+        }
         checkContextMenu(checkTabId);
     });
 }
