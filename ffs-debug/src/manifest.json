@@ -2,12 +2,17 @@
     "manifest_version": 2,
     "name": "FFS Debug",
     "description": "FileFlex Development Extension",
-    "version": "3.0.0",
+    "version": "4.0.0",
     "permissions": [
         "activeTab",
         "tabs",
         "contextMenus",
-        "storage"
+        "storage",
+        "webRequest",
+        "webRequestBlocking",
+        "*://*.cnexusdev.com/*",
+        "*://*.komero.net/*",
+        "https://share.fileflex.com/*"
     ],
     "content_scripts": [
         {
@@ -25,12 +30,19 @@
     "web_accessible_resources": [
         "manifest.json"
     ],
+    "externally_connectable": {
+        "matches": [
+            "*://*.cnexusdev.com/*",
+            "*://*.komero.net/*",
+            "https://share.fileflex.com/*"
+        ]
+    },
     "options_page": "options.html",
     "background": {
         "scripts": [
             "background.js"
         ],
-        "persistent": false
+        "persistent": true
     },
     "browser_action": {
         "default_icon": {
