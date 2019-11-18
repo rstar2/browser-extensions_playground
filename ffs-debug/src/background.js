@@ -125,35 +125,14 @@ function updateContextMenu(enabled) {
 }
 
 function listenOnTabs() {
-    // // Note: Currently active tab can be updated with a new URL
-    // let checkTabId = -1;
-
     // listen for when active tab is 'ready'
     chrome.tabs.onActivated.addListener(({tabId, windowId}, props) => {
-        // checkTabId = tabId;
-        // checkContextMenu(checkTabId);
-
-        // first disable the menus
-        updateContextMenu(false);
-    });
-    chrome.tabs.onUpdated.addListener((tabId, props) => {
-        // if (props.status === 'complete' && tabId === checkTabId) {
-        //     // checkContextMenu(checkTabId);
-        // }
-
         // first disable the menus
         updateContextMenu(false);
     });
 
     // check initially the current tab
     chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-        // if (!tabs || !tabs.length) {
-        //     checkTabId = -1;
-        // } else {
-        //     checkTabId = tabs[0].id;
-        // }
-        // checkContextMenu(checkTabId);
-
         // first disable the menus
         updateContextMenu(false);
     });

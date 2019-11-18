@@ -1,3 +1,22 @@
+## How to build
+
+### Build with incrementing the major version
+```bash
+$ npm run build
+```
+
+### Build with incrementing the minor version
+```bash
+$ npm run build:minor
+```
+
+### Build with incrementing the patch version
+```bash
+$ npm run build:patch
+```
+
+## Some explanations
+
 ### For "content_scripts' tag - specifies in which apps/pages to "inject" the specific content scripts 
 
 ```json

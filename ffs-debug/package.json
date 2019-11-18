@@ -8,7 +8,9 @@
     "upgrade:minor": "npm run upgrade -- --minor",
     "upgrade:patch": "npm run upgrade -- --patch",
     "rebuild": "node build/build.js",
-    "build": "npm run upgrade && npm run rebuild"
+    "build": "npm run upgrade && npm run rebuild",
+    "build:minor": "npm run upgrade:minor && npm run rebuild",
+    "build:patch": "npm run upgrade:patch && npm run rebuild"
   },
   "keywords": [],
   "author": "rumenn@qnext.com",
