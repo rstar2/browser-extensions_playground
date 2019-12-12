@@ -4,13 +4,14 @@
   "description": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "options:build": "npm --prefix src/options run build",
     "upgrade": "node build/upgrade.js",
     "upgrade:minor": "npm run upgrade -- --minor",
     "upgrade:patch": "npm run upgrade -- --patch",
     "rebuild": "node build/build.js",
-    "build": "npm run upgrade && npm run rebuild",
-    "build:minor": "npm run upgrade:minor && npm run rebuild",
-    "build:patch": "npm run upgrade:patch && npm run rebuild"
+    "build": "npm run options:build && npm run upgrade && npm run rebuild",
+    "build:minor": "npm run options:build && npm run upgrade:minor && npm run rebuild",
+    "build:patch": "npm run options:build && npm run upgrade:patch && npm run rebuild"
   },
   "keywords": [],
   "author": "rumenn@qnext.com",
