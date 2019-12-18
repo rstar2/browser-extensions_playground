@@ -19,6 +19,10 @@ try {
 
     // increment the version (it will auto convert to number)
     version[upgradeVersionType] = ++(version[upgradeVersionType]);
+    // the next make to 0
+    for (let i = upgradeVersionType+1; i < version.length; i++) {
+        version[i] = 0;
+    }
 
     manifest.version = version.join('.');
 

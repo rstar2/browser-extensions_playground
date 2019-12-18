@@ -71,7 +71,7 @@ function checkForDOM() {
         requestIdleCallback(checkForDOM);
     }
 }
-requestIdleCallback(checkForDOM);
+checkForDOM();
 
 // listen fot when the page/tab become visible (e.g. active again)
 document.addEventListener("visibilitychange", () => {

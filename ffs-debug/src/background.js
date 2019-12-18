@@ -22,6 +22,12 @@ const listHostsAllowed = parseAllowedHosts(chrome.runtime.getManifest());
  */
 let skin;
 
+/**
+ * Currently set replaced resources
+ * @type {{key: String, value: String}[]}
+ */
+let replaceResources;
+
 function listenOnContextMenu() {
     chrome.contextMenus.onClicked.addListener(info => {
         const {menuItemId, pageUrl} = info;
@@ -139,9 +145,12 @@ function listenOnTabs() {
 }
 
 function listenOnStorageChanges() {
-    chrome.storage.sync.get('skin', (data) => {
+    chrome.storage.sync.get(["skin", "replaceResources"], (data) => {
         skin = data.skin;
+        replaceResources = data.replaceResources;
+
         log(`Skin set to ${skin}`);
+        log(`Replace-resources set to ${JSON.stringify(replaceResources)}`);
     });
     chrome.storage.onChanged.addListener((changes, storageAreaName) => {
         // we are interested only in the 'chrome.storage.sync' StorageArea
@@ -159,36 +168,55 @@ function listenOnStorageChanges() {
 function listenOnWebRequest() {
     chrome.webRequest.onBeforeRequest.addListener(
         function (details) {
-            if (!skin) return {};
-
             const {/*String*/type, /*String*/url} = details;
 
             // prevent double redirection
             if (url.endsWith('_ffs_debug')) return {};
 
             let redirectUrl;
-            switch (type) {
-                case 'stylesheet':
-                    // in DEBUG mode
-                    // without skin -> /jawr_generator.css?generationConfigParam=%2Fstatic%2Fless%2Fbundle_main.less
-                    // with    skin -> /jawr_generator.css?generationConfigParam=%2Fstatic%2Fskin%2Fkomero%2Fless%2Fbundle_main.less
-                    // in PRODUCTION mode
-                    // without skin -> /static/gzip_3_10_0/bundles/bundle_main.css
-                    // with    skin -> /static/gzip_3_10_0/bundles/bundle_main_skin_komero.css
 
-                    if (url.includes('jawr_generator.css?generationConfigParam')) {
-                        // in debug mode
-                        redirectUrl = url.replace(/%2Fstatic(%2Fskin%2F(.*))?%2Fless/, `%2Fstatic%2Fskin%2F${skin}%2Fless`);
-                    } else if (url.includes('/bundles/')) {
-                        // in production mode
-                        redirectUrl = url.replace(/\.css/, `_skin_${skin}.css`);
+            // try first to replace the whole URL
+            if (replaceResources) {
+                replaceResources.some(({key: original, value: replaced}) => {
+                    if (url.includes(original)) {
+                        // if absolute URL or if not
+                        try {
+                            redirectUrl = new URL(replaced).href;
+                        } catch (e) {
+                            redirectUrl = url.replace(original, replaced);
+                        }
+                        return true;
                     }
-                    break;
-                case 'image':
-                    // without skin ->    images/welcome.svgz
-                    // with skin    ->    skin/komero/images/welcome.svgz
-                    redirectUrl = url.replace(/(skin\/(.+)\/)?images\//, `skin/${skin}/images/`);
-                    break;
+                })
+            }
+
+            // if not replaced then try changing the skin only
+            if (!redirectUrl) {
+                if (!skin) return {};
+
+                switch (type) {
+                    case 'stylesheet':
+                        // in DEBUG mode
+                        // without skin -> /jawr_generator.css?generationConfigParam=%2Fstatic%2Fless%2Fbundle_main.less
+                        // with    skin -> /jawr_generator.css?generationConfigParam=%2Fstatic%2Fskin%2Fkomero%2Fless%2Fbundle_main.less
+                        // in PRODUCTION mode
+                        // without skin -> /static/gzip_3_10_0/bundles/bundle_main.css
+                        // with    skin -> /static/gzip_3_10_0/bundles/bundle_main_skin_komero.css
+
+                        if (url.includes('jawr_generator.css?generationConfigParam')) {
+                            // in debug mode
+                            redirectUrl = url.replace(/%2Fstatic(%2Fskin%2F(.*))?%2Fless/, `%2Fstatic%2Fskin%2F${skin}%2Fless`);
+                        } else if (url.includes('/bundles/')) {
+                            // in production mode
+                            redirectUrl = url.replace(/\.css/, `_skin_${skin}.css`);
+                        }
+                        break;
+                    case 'image':
+                        // without skin ->    images/welcome.svgz
+                        // with skin    ->    skin/komero/images/welcome.svgz
+                        redirectUrl = url.replace(/(skin\/(.+)\/)?images\//, `skin/${skin}/images/`);
+                        break;
+                }
             }
 
             // check to see if any redirection is needed at all
@@ -198,7 +226,6 @@ function listenOnWebRequest() {
                     // add an additional query param to prevent loop-redirection
                     // if the request is to be redirected again from chrome.webRequest.onHeadersReceived
                     redirectUrl = `${redirectUrl}${(redirectUrl.includes('?') ? '&' : '?')}_ffs_debug`
-
                 }
             }
 
@@ -206,7 +233,7 @@ function listenOnWebRequest() {
         },
         {
             urls: ["<all_urls>"], // this will actually intercept all urls that we have already permitted in the manifest.json 'permissions'
-            types: ["stylesheet", "image"]
+            types: ["stylesheet", "image", "script"]
         },
         ["blocking"]);
 
