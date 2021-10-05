@@ -1,7 +1,8 @@
 const CONTEXT_ITEM_MP3 = 'mp3';
 const CONTEXT_ITEM_MP4 = 'mp4';
 
-const SERVICE_URL = 'https://g9wvw8v13h.execute-api.eu-central-1.amazonaws.com/dev/view/download';
+const SERVICE_URL =
+'https://1ouabtnb6a.execute-api.eu-central-1.amazonaws.com/dev/view/download';
 
 const ALLOWED_URL = /https:\/\/www.youtube.com\/watch\?v=(.+)/;
 

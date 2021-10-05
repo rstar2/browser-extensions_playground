@@ -5,7 +5,7 @@ const authButton = document.getElementById('authButton');
 const authEmail = document.getElementById('authEmail');
 const authPassword = document.getElementById('authPassword');
 
-const encrypted = 'U2FsdGVkX18Zvhv4Y4pZfLZA5s3wI3KatssSa5PfIcw=';
+const encrypted = 'U2FsdGVkX19+B4k7nAJ6lMF/DC2w6QMfDxKFfDZ+wHE=';
 
 authButton.addEventListener('click', () => {
     const email = authEmail.value;
@@ -26,3 +26,8 @@ authButton.addEventListener('click', () => {
         chrome.storage.sync.set({ auth: isAuthorized }, () => { });
     });
 });
+
+// encrypt:
+// const encrypted = CryptoJS.AES.encrypt(email, password);
+// console.log(encrypted.toString());
+
