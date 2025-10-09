@@ -1,8 +1,8 @@
 {
     "name": "RU Tab Switch",
     "description": "Add a keyboard shortcut for switching to the latest previously active tab",
-    "version": "2.2",
-    "manifest_version": 2,
+    "version": "3.0",
+    "manifest_version": 3,
     "permissions": [
         "tabs",
         "storage"
@@ -16,9 +16,6 @@
         }
     },
     "background": {
-        "scripts": [
-            "background.js"
-        ],
-        "persistent": false
+        "service_worker": "background.js"
     }
 }
